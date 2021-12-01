@@ -5,14 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bootcamp.micrometer.service.TempManagementI;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @RestController
 public class TestController {
+	
+	@Autowired
+	TempManagementI tempManagement;
 	
 	private final static Logger Logger = LoggerFactory.getLogger(TestController.class);
 	
@@ -24,20 +29,20 @@ public class TestController {
 		this.fahreCelsius = Counter.builder("invocaciones.FahrenheitACelsius").description("Invocaciones totales").register(registry);
 	}
 	
-	@GetMapping(path="/celsius/{id}")
-	public String celsius(@PathVariable("id") int grados){
+	@GetMapping(path="/celsius")
+	public String celsius(@RequestParam("grados") float grados){
 		// Recibe grados celsius 
 		Logger.info("Llamada al endpoint celsius.");
 		this.celsiusFahre.increment();
-		return "Grados Fahrenheit: "+((grados * 1.8f) + 32);
+		return "Grados Fahrenheit: "+tempManagement.celsiusAFahrenheit(grados);
 	}
 	
-	@GetMapping(path="/fahrenheit/{id}")
-	public String fahrenheit(@PathVariable("id") int grados){
+	@GetMapping(path="/fahrenheit")
+	public String fahrenheit(@RequestParam("grados") float grados){
 		// Recibe grados fahrenheit 
 		Logger.info("Llamada al endpoint fahrenheit.");
 		this.fahreCelsius.increment();
-		return "Grados Fahrenheit: "+((grados - 32) / 1.8f);
+		return "Grados Fahrenheit: "+tempManagement.fahrenheitACelsius(grados);
 	}
 	
 	
